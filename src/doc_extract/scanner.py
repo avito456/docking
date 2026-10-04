@@ -22,8 +22,12 @@ def file_kind(path: Path) -> str | None:
     return None
 
 
+OUTPUT_SUFFIX = "transcript"
+
+
 def output_path(path: Path) -> Path:
-    return path.with_suffix(".md")
+    """report.pdf -> report_transcript.md (рядом с исходником)."""
+    return path.with_name(f"{path.stem}_{OUTPUT_SUFFIX}.md")
 
 
 @dataclass(frozen=True)

@@ -41,9 +41,9 @@ uv tool install ~/workspace/docling && extract
 Последний выбор хранится в `~/.config/doc-extract/state.json` (или `$XDG_CONFIG_HOME/doc-extract/state.json`).
 
 В диалоге выбора файлов: стрелки — перемещение, пробел — отметить, `a` — выбрать все, `i` — инвертировать, Enter — запуск.
-Файлы, для которых уже есть `.md`, помечены `[md есть]`.
+Файлы, для которых уже есть `_transcript.md`, помечены `[md есть]`.
 
-Результат сохраняется рядом с исходником: `report.pdf` → `report.md`.
+Результат сохраняется рядом с исходником: `report.pdf` → `report_transcript.md`, `call.m4a` → `call_transcript.md`.
 
 ### Параметры
 
@@ -51,7 +51,7 @@ uv tool install ~/workspace/docling && extract
 |---|---|
 | `--model {tiny,base,small,medium,large,turbo}` | модель Whisper (по умолчанию `turbo`) |
 | `--language ru` | язык аудио (по умолчанию — автоопределение) |
-| `--force` | перезаписывать существующие `.md` без вопроса |
+| `--force` | перезаписывать существующие `_transcript.md` без вопроса |
 
 ## Форматы
 

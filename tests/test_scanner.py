@@ -14,11 +14,12 @@ def test_file_kind():
 
 
 def test_output_path():
-    assert output_path(Path("/x/report.pdf")) == Path("/x/report.md")
+    assert output_path(Path("/x/report.pdf")) == Path("/x/report_transcript.md")
+    assert output_path(Path("/x/a.b.m4a")) == Path("/x/a.b_transcript.md")
 
 
 def test_scan_filters_and_marks_existing(tmp_path):
-    for name in ["b.pdf", "a.mp3", "notes.txt", ".hidden.pdf", "~$lock.docx", "b.md"]:
+    for name in ["b.pdf", "a.mp3", "notes.txt", ".hidden.pdf", "~$lock.docx", "b_transcript.md"]:
         (tmp_path / name).write_text("x")
     (tmp_path / "sub").mkdir()
     (tmp_path / "sub" / "c.pdf").write_text("x")

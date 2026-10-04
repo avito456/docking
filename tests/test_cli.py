@@ -1,6 +1,7 @@
 from pathlib import Path
 
 from doc_extract import cli
+from doc_extract.scanner import output_path
 
 
 def test_parse_defaults():
@@ -26,7 +27,7 @@ def test_explicit_files_skip_dialog_and_unsupported(tmp_path):
 def test_existing_md_skipped_without_force(tmp_path, monkeypatch):
     pdf = tmp_path / "a.pdf"
     pdf.write_text("x")
-    (tmp_path / "a.md").write_text("old")
+    (tmp_path / "a_transcript.md").write_text("old")
     converted = []
 
     class FakeExtractor:
@@ -35,7 +36,7 @@ def test_existing_md_skipped_without_force(tmp_path, monkeypatch):
 
         def convert(self, path: Path) -> Path:
             converted.append(path)
-            return path.with_suffix(".md")
+            return output_path(path)
 
     monkeypatch.setattr("doc_extract.converters.Extractor", FakeExtractor)
 

@@ -4,7 +4,7 @@ from pathlib import Path
 
 import questionary
 
-from doc_extract.scanner import Candidate
+from doc_extract.scanner import Candidate, output_path
 
 KIND_LABELS = {
     "word": "Word",
@@ -52,5 +52,5 @@ def pick(candidates: list[Candidate], preselected: set[str] = frozenset()) -> li
 
 
 def confirm_overwrite(paths: list[Path]) -> bool:
-    names = ", ".join(p.with_suffix(".md").name for p in paths)
+    names = ", ".join(output_path(p).name for p in paths)
     return bool(questionary.confirm(f"Перезаписать существующие: {names}?", default=False).ask())
