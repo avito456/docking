@@ -8,6 +8,30 @@ from doc_extract.scanner import file_kind, output_path
 
 WHISPER_MODELS = ("tiny", "base", "small", "medium", "large", "turbo")
 
+# Пауза между сегментами Whisper (сек), после которой начинается новый абзац.
+PARAGRAPH_PAUSE = 2.0
+
+
+def join_segments(document, pause: float = PARAGRAPH_PAUSE) -> str:
+    """Склеивает сегменты транскрипции в абзацы.
+
+    docling кладёт каждый сегмент Whisper в отдельный TextItem, и export_to_markdown
+    разделяет их пустой строкой — получается «абзац» на каждую фразу.
+    """
+    paragraphs: list[list[str]] = []
+    prev_end = None
+    for item in document.texts:
+        text = item.text.strip()
+        if not text:
+            continue
+        track = item.source[0] if getattr(item, "source", None) else None
+        start = getattr(track, "start_time", None)
+        if not paragraphs or (prev_end is not None and start is not None and start - prev_end >= pause):
+            paragraphs.append([])
+        paragraphs[-1].append(text)
+        prev_end = getattr(track, "end_time", prev_end)
+    return "\n\n".join(" ".join(p) for p in paragraphs)
+
 
 class Extractor:
     """Держит ленивые экземпляры DocumentConverter: модели грузятся один раз."""
@@ -51,7 +75,7 @@ class Extractor:
 
     def _transcribe(self, audio: Path, title: str) -> str:
         result = self._asr().convert(audio)
-        body = result.document.export_to_markdown()
+        body = join_segments(result.document)
         return f"# {title}\n\n_Транскрипция: whisper-{self.model} (MLX)_\n\n{body}\n"
 
     def to_markdown(self, path: Path) -> str:
