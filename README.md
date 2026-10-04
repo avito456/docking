@@ -13,12 +13,17 @@ uv sync
 
 При первом запуске docling скачает модели (layout/OCR для PDF и whisper-turbo ~1.5 ГБ) в `~/.cache/huggingface`.
 
+Или
+~~~sh
+HF_HUB_DISABLE_XET=1 uv run python -c "from huggingface_hub import snapshot_download; snapshot_download('mlx-community/whisper-turbo')"
+~~~
+
 ## Использование
 
 Из папки проекта:
 
 ```bash
-uv run extract                         # диалог выбора файлов в текущей папке
+uv run extract                         # диалог: выбор папки, затем файлов
 uv run extract ~/Documents/inbox       # диалог по файлам указанной папки
 uv run extract report.pdf call.m4a     # обработать файлы без диалога
 ```
@@ -31,7 +36,11 @@ uv run --project ~/workspace/docling extract
 uv tool install ~/workspace/docling && extract
 ```
 
-В диалоге: стрелки — перемещение, пробел — отметить, `a` — выбрать все, `i` — инвертировать, Enter — запуск.
+Без аргументов сначала спрашивается папка (Tab — автодополнение пути, Enter — подтвердить).
+По умолчанию подставляется папка из прошлого запуска, а файлы, выбранные в прошлый раз, уже отмечены.
+Последний выбор хранится в `~/.config/doc-extract/state.json` (или `$XDG_CONFIG_HOME/doc-extract/state.json`).
+
+В диалоге выбора файлов: стрелки — перемещение, пробел — отметить, `a` — выбрать все, `i` — инвертировать, Enter — запуск.
 Файлы, для которых уже есть `.md`, помечены `[md есть]`.
 
 Результат сохраняется рядом с исходником: `report.pdf` → `report.md`.

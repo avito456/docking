@@ -20,12 +20,33 @@ def choice_title(c: Candidate) -> str:
     return f"{KIND_LABELS[c.kind]:<6} {c.path.name}{mark}"
 
 
-def pick(candidates: list[Candidate]) -> list[Path]:
-    """Чекбокс-список; возвращает выбранные пути (пусто при отмене)."""
+def pick_directory(default: Path) -> Path | None:
+    """Ввод каталога с автодополнением (Tab); None при отмене."""
+
+    def validate(text: str) -> bool | str:
+        return Path(text).expanduser().is_dir() or "Нет такого каталога"
+
+    answer = questionary.path(
+        "Каталог с файлами (Tab — дополнение, Enter — подтвердить):",
+        default=str(default),
+        only_directories=True,
+        validate=validate,
+    ).ask()
+    return Path(answer).expanduser().resolve() if answer else None
+
+
+def pick(candidates: list[Candidate], preselected: set[str] = frozenset()) -> list[Path]:
+    """Чекбокс-список; возвращает выбранные пути (пусто при отмене).
+
+    Файлы с именами из preselected отмечены заранее.
+    """
     selected = questionary.checkbox(
         "Выберите файлы для извлечения текста "
         "(пробел — отметить, a — все, i — инвертировать, Enter — готово):",
-        choices=[questionary.Choice(choice_title(c), value=c.path) for c in candidates],
+        choices=[
+            questionary.Choice(choice_title(c), value=c.path, checked=c.path.name in preselected)
+            for c in candidates
+        ],
     ).ask()
     return selected or []
 

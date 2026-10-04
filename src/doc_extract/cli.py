@@ -7,6 +7,7 @@ from pathlib import Path
 from rich.console import Console
 from rich.table import Table
 
+from doc_extract import state
 from doc_extract.converters import WHISPER_MODELS
 from doc_extract.scanner import SUPPORTED_EXTENSIONS, file_kind, output_path, scan
 
@@ -20,7 +21,8 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     )
     parser.add_argument(
         "paths", nargs="*", type=Path,
-        help="Файлы для обработки или папка для выбора (по умолчанию — текущая папка, интерактивно)",
+        help="Файлы для обработки или папка для выбора "
+             "(без аргументов — диалог выбора папки, по умолчанию последняя использованная)",
     )
     parser.add_argument("--model", choices=WHISPER_MODELS, default="turbo",
                         help="Модель Whisper для аудио/видео (по умолчанию turbo)")
@@ -32,8 +34,9 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
 
 def resolve_targets(args: argparse.Namespace) -> tuple[list[Path], bool]:
     """Возвращает (файлы, был_ли_диалог)."""
+    last = state.load()
     if len(args.paths) == 1 and args.paths[0].is_dir():
-        directory = args.paths[0]
+        directory = args.paths[0].resolve()
     elif args.paths:
         files = []
         for p in args.paths:
@@ -45,7 +48,12 @@ def resolve_targets(args: argparse.Namespace) -> tuple[list[Path], bool]:
                 files.append(p)
         return files, False
     else:
-        directory = Path.cwd()
+        from doc_extract.picker import pick_directory
+
+        default = last.directory if last.directory and last.directory.is_dir() else Path.cwd()
+        directory = pick_directory(default)
+        if directory is None:
+            return [], True
 
     candidates = scan(directory)
     if not candidates:
@@ -55,7 +63,11 @@ def resolve_targets(args: argparse.Namespace) -> tuple[list[Path], bool]:
 
     from doc_extract.picker import pick
 
-    return pick(candidates), True
+    preselected = last.files if directory == last.directory else set()
+    files = pick(candidates, preselected)
+    if files:
+        state.save(directory, files)
+    return files, True
 
 
 def main(argv: list[str] | None = None) -> int:

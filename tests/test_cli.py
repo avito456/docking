@@ -43,3 +43,36 @@ def test_existing_md_skipped_without_force(tmp_path, monkeypatch):
     assert converted == []
     assert cli.main([str(pdf), "--force"]) == 0
     assert converted == [pdf]
+
+
+def test_no_args_asks_directory_and_remembers_selection(tmp_path, monkeypatch):
+    docs = tmp_path / "docs"
+    docs.mkdir()
+    for name in ("a.pdf", "b.docx", "c.mp3"):
+        (docs / name).write_text("x")
+    calls = []
+
+    def fake_pick_directory(default):
+        calls.append(("dir", default))
+        return docs
+
+    def fake_pick(candidates, preselected=frozenset()):
+        calls.append(("files", set(preselected)))
+        return [docs / "a.pdf", docs / "c.mp3"]
+
+    monkeypatch.setattr("doc_extract.picker.pick_directory", fake_pick_directory)
+    monkeypatch.setattr("doc_extract.picker.pick", fake_pick)
+
+    files, interactive = cli.resolve_targets(cli.parse_args([]))
+    assert interactive is True
+    assert files == [docs / "a.pdf", docs / "c.mp3"]
+    assert calls == [("dir", Path.cwd()), ("files", set())]
+
+    calls.clear()
+    cli.resolve_targets(cli.parse_args([]))
+    assert calls == [("dir", docs), ("files", {"a.pdf", "c.mp3"})]
+
+
+def test_cancelled_directory_dialog(monkeypatch):
+    monkeypatch.setattr("doc_extract.picker.pick_directory", lambda default: None)
+    assert cli.resolve_targets(cli.parse_args([])) == ([], True)
