@@ -28,7 +28,7 @@ def parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="Модель Whisper для аудио/видео (по умолчанию turbo)")
     parser.add_argument("--language", default=None,
                         help="Код языка аудио, например ru или en (по умолчанию — автоопределение)")
-    parser.add_argument("--force", action="store_true", help="Перезаписывать существующие .md")
+    parser.add_argument("--force", action="store_true", help="Перезаписывать существующие результаты (*_transcript.md)")
     return parser.parse_args(argv)
 
 
@@ -87,7 +87,7 @@ def main(argv: list[str] | None = None) -> int:
             overwrite = confirm_overwrite(existing)
         if not overwrite:
             for f in existing:
-                console.print(f"[yellow]Пропуск, .md уже есть:[/] {f.name} (используйте --force)")
+                console.print(f"[yellow]Пропуск, результат уже есть:[/] {f.name} (используйте --force)")
             files = [f for f in files if f not in existing]
 
     from doc_extract.converters import Extractor

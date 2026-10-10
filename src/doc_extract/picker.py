@@ -16,7 +16,7 @@ KIND_LABELS = {
 
 
 def choice_title(c: Candidate) -> str:
-    mark = "  [md есть]" if c.has_output else ""
+    mark = "  [готово]" if c.has_output else ""
     return f"{KIND_LABELS[c.kind]:<6} {c.path.name}{mark}"
 
 

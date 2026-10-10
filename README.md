@@ -31,9 +31,9 @@ uv run extract report.pdf call.m4a     # обработать файлы без 
 Из любой папки с файлами:
 
 ```bash
-uv run --project ~/workspace/docling extract
+uv run --project ~/workspace/docking extract
 # или установить как команду:
-uv tool install ~/workspace/docling && extract
+uv tool install ~/workspace/docking && extract
 ```
 
 Без аргументов сначала спрашивается папка (Tab — автодополнение пути, Enter — подтвердить).
@@ -41,7 +41,7 @@ uv tool install ~/workspace/docling && extract
 Последний выбор хранится в `~/.config/doc-extract/state.json` (или `$XDG_CONFIG_HOME/doc-extract/state.json`).
 
 В диалоге выбора файлов: стрелки — перемещение, пробел — отметить, `a` — выбрать все, `i` — инвертировать, Enter — запуск.
-Файлы, для которых уже есть `_transcript.md`, помечены `[md есть]`.
+Файлы, для которых уже есть `_transcript.md`, помечены `[готово]`.
 
 Результат сохраняется рядом с исходником: `report.pdf` → `report_transcript.md`, `call.m4a` → `call_transcript.md`.
 
@@ -51,7 +51,7 @@ uv tool install ~/workspace/docling && extract
 |---|---|
 | `--model {tiny,base,small,medium,large,turbo}` | модель Whisper (по умолчанию `turbo`) |
 | `--language ru` | язык аудио (по умолчанию — автоопределение) |
-| `--force` | перезаписывать существующие `_transcript.md` без вопроса |
+| `--force` | перезаписывать существующие `*_transcript.md` без вопроса |
 
 ## Форматы
 
